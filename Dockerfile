@@ -10,7 +10,7 @@ COPY . .
 # Install the dependencies from the requirements.txt file
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port that Flask will run on
+# Expose port 8080 for Cloud Run
 EXPOSE 8080
 
 # Set the environment variable to indicate that Flask is running in production
