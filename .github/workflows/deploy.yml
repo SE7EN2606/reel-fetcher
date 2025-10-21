@@ -29,14 +29,21 @@ jobs:
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer .
 
-      - name: Push Docker image to Google Container Registry
+      - name: Push Docker image to Artifact Registry
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer
+          # Log in to Google Cloud Artifact Registry
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          
+          # Tag the Docker image for Artifact Registry (use a version tag, e.g., v1)
+          docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/summarizer-repo/summarizer:v1
+
+          # Push the image to Artifact Registry
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/summarizer-repo/summarizer:v1
 
       - name: Deploy to Google Cloud Run
         run: |
           gcloud run deploy summarizer \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/summarizer-repo/summarizer:v1 \
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated
