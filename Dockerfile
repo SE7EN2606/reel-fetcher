@@ -1,20 +1,32 @@
-# Use the official Python image from Docker Hub as the base image
-FROM python:3.9-slim
+# Use Python 3.10 slim image
+FROM python:3.10-slim
 
-# Set the working directory in the container
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set work directory
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . .
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install the dependencies from the requirements.txt file
+# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 8080 for Cloud Run
+# Copy project
+COPY . .
+
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash app \
+    && chown -R app:app /app
+USER app
+
+# Expose port
 EXPOSE 8080
 
-# Set the environment variable to indicate that Flask is running in production
-ENV FLASK_ENV=production
-
-# Define the default command to run the application
-CMD ["python", "app.py"]
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "120", "app:app"]
