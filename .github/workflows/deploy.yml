@@ -10,13 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code from GitHub
       - name: Checkout code from GitHub
         uses: actions/checkout@v2
-
-      # Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
       # Set up Google Cloud authentication
       - name: Set up Google Cloud authentication
@@ -24,18 +19,16 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Set up Docker environment
-      - name: Set up Docker
+      # Set up Docker Buildx (for building multi-platform images if needed)
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          version: latest
 
       # Build the Docker image
       - name: Build the Docker image
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer .
 
-      # Force Docker re-authentication
+      # Log in to Google Cloud Artifact Registry and push the Docker image
       - name: Log in to Google Cloud Artifact Registry
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
@@ -45,10 +38,7 @@ jobs:
       # Tag and push Docker image to Artifact Registry
       - name: Push Docker image to Artifact Registry
         run: |
-          # Tag the Docker image with version v1 (or any tag you prefer)
           docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/summarizer us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/summarizer-repo/summarizer:v1
-
-          # Push the image to Artifact Registry
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/summarizer-repo/summarizer:v1
 
       # Deploy to Google Cloud Run
