@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from summarize import classify_topic, generate_summary
 
@@ -25,5 +26,6 @@ def summarize():
     })
 
 if __name__ == '__main__':
-    # Ensure Flask runs on the correct port (8080) and is accessible
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    # Use the port that Cloud Run automatically sets, default to 8080 if not set
+    port = int(os.environ.get('PORT', 8080))  # Cloud Run sets this environment variable
+    app.run(debug=True, host='0.0.0.0', port=port)
