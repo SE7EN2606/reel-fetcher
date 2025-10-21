@@ -25,4 +25,5 @@ def summarize():
     })
 
 if __name__ == '__main__':
+    # Ensure Flask runs on the correct port (8080) and is accessible
     app.run(debug=True, host='0.0.0.0', port=8080)
