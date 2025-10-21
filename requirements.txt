@@ -1,5 +1,8 @@
-flask
-openai
-transformers
-torch
-google-cloud
+Flask==2.3.3
+transformers==4.31.0
+torch==2.0.1
+numpy==1.23.5
+openai-whisper==20230314
+yt-dlp==2023.7.6
+Werkzeug==2.3.7
+gunicorn==21.2.0
